@@ -53,7 +53,7 @@ coherent()
 # Check coherent 488 hours
 comport='COM202'	
 coherent()
-# Check cobolt 561 hours, not Gen3
+# Check cobolt 561 hours
 comport='COM203'	
 cobolt()
 # Check coherent 640 hours
