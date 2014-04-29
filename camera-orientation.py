@@ -125,7 +125,8 @@ if __name__ == '__main__':
                             # Make the modification.  Note it's not
                             # applied till the file is saved.
                             config.remove_option(section, option)
-                            config[section][option] = '1'
+                            config[section][new_option] = '1'
+                            
         if apply_changes and file_changed:
             print('Updating {0}'.format(f.stem))
             with open(str(f), 'w') as configfile:
