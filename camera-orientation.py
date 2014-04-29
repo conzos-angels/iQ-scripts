@@ -26,7 +26,7 @@ configuration = 'Haibing'
 # to False, one can read the script output to see what changes will be
 # made without applying.  Note Python's boolean capitalization is case
 # sensitive; i.e. set "True", not "true".
-apply_changes = False
+apply_changes = True
 
 # Dictionaty of settings for each camera. The parent key is the camera
 # serial number.  Allowed values for the child values are listed in
@@ -97,8 +97,10 @@ if __name__ == '__main__':
 
     # Print settings that would be changed.
     print('Settings to be changed:')
+    any_files_changed = False
     for f in files:
-        config = configparser.ConfigParser()
+        config = configparser.RawConfigParser()    # To use optionxform.
+        config.optionxform = lambda option: option # Don't change case.
         config.read(str(f))
         sections = config.sections()
         file_changed = False
@@ -116,6 +118,7 @@ if __name__ == '__main__':
                         new_option = camera[key]
                         if camera[key] != option:
                             if file_changed == False:
+                                any_files_changed = True
                                 file_changed = True
                                 print(f.stem) # Print header.
                             if section_changed == False:
@@ -128,6 +131,9 @@ if __name__ == '__main__':
                             config[section][new_option] = '1'
                             
         if apply_changes and file_changed:
-            print('Updating {0}'.format(f.stem))
+            print('Updating file {0} ... '.format(f.name), end='')
             with open(str(f), 'w') as configfile:
                 config.write(configfile)
+            print('OK')
+    if any_files_changed == False:
+        print('...None.  Camera orientation is consistent with requested orientation.')
