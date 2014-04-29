@@ -56,17 +56,19 @@ IQ_VERSION = '3'
 EXT = 'KI_LZEXP'
 ## iQ LZEXP INI file options.
 OPTION_SERIAL = 'Camera Serial Number'
-OPTION_FLIP = [
+OPTIONS_FLIP = [
     'Flip None',
     'Flip Vertical'
     'Flip Horizontal'
     ]
-OPTION_ROTATION = [
+OPTIONS_ROTATION = [
     'Rotation None',
     'Rotation 90 degrees',
     'Rotation 90 degrees anti-clockwise',
     'Rotation 180 degrees'
     ]
+
+ 
 
 #-----------------------------------------------------------------------
 # Main script.
@@ -99,29 +101,32 @@ if __name__ == '__main__':
         config = configparser.ConfigParser()
         config.read(str(f))
         sections = config.sections()
-        changes_made = False
+        file_changed = False
         for section in sections:
+            section_changed = False
             # Check if the section has a serial number.
             if OPTION_SERIAL in config[section]:
                 serial = config[section][OPTION_SERIAL]
                 # Find which of the flip/rotation options are there.
-                for option in OPTION_FLIP + OPTION_ROTATION:
+                for option in OPTIONS_FLIP + OPTIONS_ROTATION:
                     if option in config[section]:
                         # Advise the modification to be made.
                         camera = cameras[int(serial)]
-                        camera_option = option.lower().split()[0]
-                        new_option = camera[camera_option]
-                        if camera[camera_option] != option:
-                            changes_made = True
-                            print('  {fname}: {serial}: '.format(
-                                    fname=f.name,
-                                    serial=serial),
-                                  end='')
-                            print('{0} -> {1}'.format(option, new_option))
+                        key = option.lower().split()[0]
+                        new_option = camera[key]
+                        if camera[key] != option:
+                            if file_changed == False:
+                                file_changed = True
+                                print(f.stem) # Print header.
+                            if section_changed == False:
+                                section_changed = True
+                                print('  {0}'.format(section))
+                            print('    {0}: {1} -> {2}'.format(serial, option, new_option))
                             # Make the modification.  Note it's not
                             # applied till the file is saved.
                             config.remove_option(section, option)
                             config[section][option] = '1'
-        if apply_changes:
+        if apply_changes and file_changed:
+            print('Updating {0}'.format(f.stem))
             with open(str(f), 'w') as configfile:
                 config.write(configfile)
