@@ -1,0 +1,46 @@
+def laser(com_port, command, baud):
+	port=serial.Serial(com_port, baud, timeout=1)
+	port.write(command.encode('latin-1'))
+	
+	# Wait
+	time.sleep(.500)
+	
+	# Print the laser hours	
+	string=port.read(19).decode('latin-1')
+	return string
+	port.close()
+	
+	
+import time
+import serial
+
+com_port=200
+print("****Program reads laser hours 20-Aug-2014 FB****\n")
+number = int(input("Enter the number of Lasers in the ALC and press enter\n"))
+print('\n')
+
+while (number>0):
+
+	print(com_port+1)
+	string=laser(com_port, command='?HH\r', baud=19200)
+	
+	if (string=="Syntax error: '?HH'" or len(string) == 0):
+	
+		string=laser(com_port, command='hrs?\r', baud=19200)
+		print(string)
+		
+		if (len(string) == 0):
+		
+			string=laser(com_port, command='hrs?\r', baud=115200)
+			print(string)
+	
+	else:
+	
+		print(string)
+	
+	print('\n')	
+	com_port=com_port+1
+	number=number-1
+	
+
+input("Press Enter to continue...")
